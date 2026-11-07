@@ -5,6 +5,7 @@ import {
 } from "../../../lib/stats";
 import { authenticate } from "../../../lib/auth";
 import { authorize } from "../../../lib/authorization";
+import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,10 @@ function forbiddenResponse() {
 export async function GET(request) {
   try {
     const user = authenticate(request);
+
+    if(!user) return authenticationRequiredResponse();
+    if(!authorize(user, "stats:read")) return forbiddenResponse();
+
     const summary = await getSummaryStats();
     const topUrl = await getTopUrl();
     const urls = await getUrlStats();

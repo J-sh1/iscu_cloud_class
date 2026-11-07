@@ -72,7 +72,7 @@ export async function POST(request) {
             message: "Original URL is required.",
           },
         },
-        { status: 200 }
+        { status: 400 }
       );
     }
 
@@ -95,7 +95,7 @@ export async function POST(request) {
               `URL must be ${MAX_URL_LENGTH} characters or fewer.`,
           },
         },
-        { status: 200 }
+        { status: 400 }
       );
     }
 
@@ -126,7 +126,7 @@ export async function POST(request) {
               "URL must start with http:// or https://.",
           },
         },
-        { status: 200 }
+        { status: 400 }
       );
     }
 
@@ -152,7 +152,19 @@ export async function POST(request) {
               "URL must start with http:// or https://.",
           },
         },
-        { status: 200 }
+        { status: 400 }
+      );
+    }
+
+    const requestHost = new URL(request.url).host.toLowerCase();
+    if(parsedUrl.host.toLowerCase() === requestHost){
+      return NextResponse.json({
+        error : {
+          code : "INVALID_URL",
+          message : "Cannot shorten URL of the same service."
+          },
+        },
+        {status : 400}
       );
     }
 
@@ -182,7 +194,7 @@ export async function POST(request) {
         shortUrl: `${baseUrl}/${shortCode}`,
         originalUrl,
       },
-      { status: 200 }
+      { status: 201 }
     );
 
   } catch {
@@ -202,7 +214,7 @@ export async function POST(request) {
           message: "Failed to create short URL.",
         },
       },
-      { status: 200 }
+      { status: 500 }
     );
   }
 }
